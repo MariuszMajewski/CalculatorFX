@@ -9,10 +9,16 @@ public class Controller {
     private double wynik;
     private double digitA;
     private double digitB;
-    private boolean isContinued = false;
+    //  private boolean isContinued = false;
     private boolean isScreenContinued = true;
     private boolean isMinus = false;
-    private String operation;
+    // Operations
+    // 0 - no operation
+    // 1 - Add
+//     2 - Minus
+//    3 - Multiply
+//    4 - Divide
+    private int operation = 0;
     private StringBuilder tempScreenView = new StringBuilder();
 
     public static double AddOperation(double a, double b) {
@@ -95,9 +101,9 @@ public class Controller {
     void OnActionDigit(ActionEvent event) {
         if (!isScreenContinued) {
             tempScreenView.delete(0, tempScreenView.length());
-            isScreenContinued=true;
+            isScreenContinued = true;
         }
-        if (event.getSource().equals(digit0)){
+        if (event.getSource().equals(digit0)) {
             tempScreenView.append("0");
         }
         if (event.getSource().equals(digit1))
@@ -137,65 +143,96 @@ public class Controller {
         screen.setText(tempScreenView.toString());
     }
 
-
     @FXML
-    void OnActionAdd(ActionEvent event) {
-        if (!isContinued) {
-            System.out.println("test Add 1    wynik: "+wynik+"  digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
-            smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " +");
-            digitA = Double.parseDouble(tempScreenView.toString());;
-            isContinued = true;
-            isScreenContinued=false;
-            operation = "+";
-            System.out.println("test Add 1   wynik: "+wynik+" digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
-        } else {
-            System.out.println("test Add 2    wynik: "+wynik+"  digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
-            digitB = Double.parseDouble(tempScreenView.toString());
-            digitA = wynik = digitA + digitB;
-            tempScreenView.delete(0, tempScreenView.length());
-            smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " +");
-            screen.setText(String.valueOf(wynik));
-            System.out.println("test Add 2    wynik: "+wynik+"  digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
+    void onActionOperations(ActionEvent event) {
+        System.out.println("test Operations 1:    operacja: " + operation + " wynik: " + wynik + " digitA: " + digitA + "   digitB: " + digitB + "   tempScreenView: " + tempScreenView);
+
+        if (operation==0) {
+            digitA = Double.parseDouble(tempScreenView.toString());
+            isScreenContinued = false;
         }
-
-    }
-
-    @FXML
-    void onActionDivide(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionMultiply(ActionEvent event) {
-
-    }
-
-    @FXML
-    void onActionMinus(ActionEvent event) {
-        if (!isContinued) {
-            System.out.println("test Minus 1    wynik: "+wynik+"  digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
-            smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " -");
-            digitA = Double.parseDouble(tempScreenView.toString());;
-            isContinued = true;
-            isScreenContinued=false;
-            operation = "-";
-            System.out.println("test Minus 1   wynik: "+wynik+" digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
-        } else {
-            System.out.println("test Minus 2    wynik: "+wynik+"  digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
+        else {
             digitB = Double.parseDouble(tempScreenView.toString());
-            digitA = wynik = digitA - digitB;
-            tempScreenView.delete(0, tempScreenView.length());
-            smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " -");
-            screen.setText(String.valueOf(wynik));
-            System.out.println("test Minus 2    wynik: "+wynik+"  digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
         }
+            if(operation==1){
+                digitA = wynik = onActionAdd(digitA,digitB);
+            }else if(operation==2){
+            digitA = wynik = onActionMinus(digitA,digitB);
+            }else if(operation==3){
+                digitA = wynik = onActionMultiply(digitA,digitB);
+            }else if(operation==4){
+                if(digitB!=0)
+                    digitA = wynik = onActionDivide(digitA,digitB);
+                else
+                    System.out.println("Nie dziel przez zero");
+            }
+
+            if (event.getSource().equals(buttonAdd)) {
+                operation = 1;
+                smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " +");
+            } else if (event.getSource().equals(buttonMinus)) {
+                operation = 2;
+                smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " -");
+            }
+            else if (event.getSource().equals(buttonMultiply)) {
+                operation = 3;
+                smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " *");
+            }
+            else if (event.getSource().equals(buttonDivide)) {
+                operation = 4;
+                smallScreen.setText(smallScreen.getText() + " " + screen.getText() + " /");
+            }
+
+
+            tempScreenView.delete(0, tempScreenView.length());
+            screen.setText(String.valueOf(digitA));
+
+            System.out.println("test Operations 2:    operacja: " + operation + " wynik: " + wynik + " digitA: " + digitA + "   digitB: " + digitB + "   tempScreenView: " + tempScreenView);
+    }
+    @FXML
+    void onActionSum(ActionEvent event) {
+
+        if (operation==1) {
+            digitB = Double.parseDouble(screen.getText());
+            wynik = onActionAdd(digitA,digitB);
+        } else if (operation==2) {
+            digitB = Double.parseDouble(screen.getText());
+            wynik = onActionMinus(digitA,digitB);
+        } else if (operation==3) {
+            digitB = Double.parseDouble(screen.getText());
+            wynik = onActionMultiply(digitA,digitB);
+        } else if (operation==4) {
+            digitB = Double.parseDouble(screen.getText());
+            if(digitB!=0)
+            wynik = onActionDivide(digitA,digitB);
+        }
+        operation = 0;
+        digitA = 0;
+        digitB = 0;
+        isScreenContinued = false;
+
+        smallScreen.setText("");
+        screen.setText(String.valueOf(wynik));
+        tempScreenView.delete(0, tempScreenView.length());
+        tempScreenView.append(String.valueOf(wynik));
     }
 
 
-    void setScreen(String screenText) {
-
-
+    double onActionAdd(double digitA, double digitB) {
+         return digitA + digitB;
     }
+
+    double onActionMinus(double digitA, double digitB) {
+        return digitA - digitB;
+    }
+    double onActionMultiply(double digitA, double digitB) {
+        return digitA * digitB;
+    }
+    double onActionDivide(double digitA, double digitB) {
+        System.out.println("t "+(digitA / digitB)+(digitA % digitB));
+        return (digitA / digitB)+(digitA % digitB);
+    }
+
 
     @FXML
     void onActionC(ActionEvent event) {
@@ -204,9 +241,8 @@ public class Controller {
         screen.setText("");
         smallScreen.setText("");
         tempScreenView.delete(0, tempScreenView.length());
-        isContinued = false;
-        isScreenContinued=false;
-        operation = "";
+        isScreenContinued = false;
+        operation = 0;
     }
 
     @FXML
@@ -222,27 +258,5 @@ public class Controller {
 
     }
 
-    @FXML
-    void onActionSum(ActionEvent event) {
-        System.out.println("test Sum 0   wynik: "+wynik+" digitA: "+digitA+"   digitB: "+digitB+"   tempScreenView: "+tempScreenView);
-        smallScreen.setText("");
-        tempScreenView.delete(0, tempScreenView.length());
-        if (operation.equals("+")) {
-            digitB = Double.parseDouble(screen.getText());
-            wynik = digitA + digitB;
-            System.out.println("Operacja +");
-        }else if (operation.equals("-")) {
-            digitB = Double.parseDouble(screen.getText());
-            wynik = digitA - digitB;
-            System.out.println("Operacja -");
-        }
-        operation = "";
-        digitA=0;
-        digitB=0;
-        isContinued = false;
-        isScreenContinued=false;
-        System.out.println("test Sum 1    wynik: "+wynik+"   digitA: "+digitA+"   digitB: "+digitB+"  tempScreenView: "+tempScreenView);
-        screen.setText(String.valueOf(wynik));
-        tempScreenView.append(String.valueOf(wynik));
-    }
+
 }
